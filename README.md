@@ -551,307 +551,443 @@ Characterization is a well-defined flow consisting of the following steps:
   7. Provide necessary simulation commands 
 
 <!-- Day 3 Design Library Cell -->
-## Day 3 Design Library Cell
+# Day 3
+## Labs for CMOS inverter ngspice simulations
+**IO Placer Revision**
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/fabe5ca4-7dde-43f9-a8e4-260ed11ed820)
+- The following command can be typed to change the I/O pins placemnt configuration.
+
+## Inception of Layout and CMOS Fabrication Process
+**SPICE Deck Creation for CMOS Inverter**
+- SPICE Deck is a netlist that has information on:
+  - component connectivity 
+  - component values
+  - identifying the nodes
+  - giving a designation to the nodes
+
+**SPICE Simulation and Switching Threshold**
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/29e6f5c4-d166-4283-85c2-81947d29f165)
+- The CMOS on the right side has a bigger size than the one on the left.
+- These waveforms tell us that the CMOS is a very robust device. The characteristics of the CMOS are maintained across a variety of sizes.
+- The arrow is pointing to the point where 'Vin = Vout'.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/247e37b7-b3b3-4036-9eaf-2c5380a6c71a)
+- Above graph gives details on each point and its significance
+
+**A Git Clone and some other Steps**
+
+- We need to perform a git clone here from a repository that we require, to do the future labs.
+- We can type the following command
+```
+git clone https://github.com/nickson-jose/vsdstdcelldesign.git
+```
+
+- Now we need to copy the 'sky130A.tech' file into the directory we just cloned
+- We can do this by using
+```
+cp sky130A.tech /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/vsdstdcelldesign
+```
+in the follwoing directory shown in the figure
+![pk31](https://github.com/poornima-chetty/pes_pd/assets/142583396/2b9660a0-694f-418b-bf83-950f69acab87)
+
+
+**16 Mask CMOS Process**
+1) Selecting a Substrate - Selecting the appropriate substrate to synthsize the design on.
+2) Creating active reagion for transistors - Adding layers of SiO2(40nm), Si3N4(80nm) and photoresist(1um). On top of the photoresist we put a mask layer. Pass UV light and remove the mask. Resist is removed. LOCOS(Local Oxidation of Silicon) is performed. Si3N4 is etched.
+3) N-Well and P-Well formation - The next masks are used to create the source and drain regions of the MOSFETs. Boron is used to make P-Well using ion implantation. Phosphorus is used to create N-Well. Put the MOSFET in a Drive In furnace.
+4) Formation of Gate - Gate formation involves depositing a gate oxide, defining gate patterns using photolithography, depositing gate material, etching to create gates, doping the substrate and insulating the gates.
+5) Lightly Doped Drain Formation(LDD) - Lightly doped drain (LDD) formation involves implanting the drain and source regions of a MOSFET transistor with a lighter concentration of dopants to reduce hot electron effect and short channel effect and enhance device performance.
+6) Source and Drain Formation - Source and drain formation in a MOSFET transistor typically involves doping the silicon substrate with chemicals such as arsenic or phosphorous for n-type regions (source and drain) and boron for p-type regions (source and drain). High temperature annealing is performed.
+7) Steps to form Contacts and Interconnects(local) - Titanium is deposited with a process known as sputtering. Wafer is heated to about 650 - 700 C in an N2 ambient furnace for 60 seconds. TiSi2 contacts are formed.  TiN is also formed used for local communication. TiN is etched using RCA cleaning.
+8) Higher Level Metal Formation - Forming contacts and interconnects locally involves depositing a dielectric material like silicon dioxide, patterning it using photolithography, etching contact holes, depositing a barrier metal (e.g., titanium or titanium nitride), filling with a conductor (e.g., aluminum or copper) using chemical vapor deposition (CVD), and then planarizing through chemical-mechanical polishing (CMP).
+
+**Sky130 Basic Layers Layout and LEF using Inverter**
+- Now let us look at the layout of a CMOS inverter. To open this we type the command
+![pk32](https://github.com/poornima-chetty/pes_pd/assets/142583396/46716ad5-d819-4c32-95c0-48b0995311f5)
+
+```
+ magic -T sky130A.tech sky130_inv.mag &
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/4544d764-7b49-4b1f-b3d7-0ae61961bd81)
+- The following layout is displayed.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/f10146f9-71a2-4d15-b377-43a72034b9fc)
+- We can get to know the details of the inverter by hovering the mouse cursor over it and pressing 's' on the keyboard. Then we can type ```what``` in the tkcon.
+- Pressing 's' three times will show what parts are connected to the selected part.
+
+- We shall look at the difference between LEF and Layout. The above image is a Layout.
+- LEF represents abstract component data in a machine-readable format for IC libraries, while layout is the physical geometric arrangement of these components on a semiconductor chip.
+
+**Steps to Create Standard Cell Layout and Extract Spice Netlist**
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/aa5b0d26-1711-4fb3-84ff-817ca929110f)
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/7a2bca47-28d8-4c2e-96cd-4fdcb983fcf0)
+- DRC errors can be viewed in the tkcon.
+
+To extract Spice Netlist we perform the following steps in the tkcon window:
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/deb99366-4eb3-40b6-8172-ecce6962db33)
+- We use the commands
+```
+ext2spice cthresh 0 rthresh 0 -> this is done to copy the parasitic capacitances
+```
+- The next command is
+```
+ext2spice
+```
+![pk33](https://github.com/poornima-chetty/pes_pd/assets/142583396/2a1290a0-82c0-496a-854a-573bf54caeac)
+
+- We can see that a sky130_inv.spice file is created
+
+## Sky130 Tech File Labs
+
+**Create Final SPICE Deck**
+- To start off we look at the minimum value of the layout window.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/6a5d5d43-94d8-4248-8681-5d8d94e924e4)
+- We can use 'g' on the keyboard to activate the grid and after selecting a grid by right clicking on the mouse, we type ```box``` in tkcon window to check the minimum value of the layout window.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/fcadbb47-849c-4d5f-a15d-4612fb015be6)
+- Next we need to open the spice file using the command
+```
+gedit sky130_inv.spice
+```
+- We need to configure it to the above specifications.
 
-OpenLANE has the benefit of allowing changes to internal switches of the ASIC design flow on the fly. This allows users to experiment with floorplanning and placement without having to reinvoke the tool.
+**Characterize Inverter using Sky130 Models**
+![pk34](https://github.com/poornima-chetty/pes_pd/assets/142583396/91a64829-f6d0-4352-9ceb-8ed4a047e492)
 
-### Spice Simulations
+- We now plot the graph for output vs input sweeping the time.
+- We first use the command
+```
+ngspice sky130_inv.spice
+```
+- In the ngspice shell we use the command
+```
+plot y vs time a
+```
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/b810d9fe-11e4-44f7-863c-ed19593e0b3c)
+- The following graph is displayed.
 
-To simulate standard cells spice deck wrappers will need to be created around our model files. 
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/400506ec-61c3-458c-9130-7147ec496c6a)
 
-SPICE deck will comprise of:
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/55c43b65-5c02-451a-bb11-391de8d87571)
+- Rise Time -> time taken to rise from 20% to 80% of the max value -> 2.25075e-09 - 2.184e-09 = 0.006675e-09 s.
 
-  - Model include statements
-  - Component connectivity, including substrate taps
-  - Output load capacitance
-  - Component values
-  - Node names
-  - Simulation commands
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/93f95ac2-43e2-48de-93e1-07399e20b4b1)
 
-To plot the output waveform of the spice deck we will use ngspice. The steps to run the simulation on ngpice are as follows:
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/fc3b2887-d910-4864-ae33-ef02fdb8035f)
+- Propogation Delay/Cell Rise Delay -> 2.21379e-09 - 2.15e-09 = 0.06379e-09 s.
 
-  1. Source the .cir spice deck file
-  2. Run the spice file by: run
-  3. Run: setplot → allows you to view any plots possible from the simulations specified in the spice deck
-  4. Select the simulation desired by entering the simulation name in the terminal
-  5. Run: display to see nodes available for plotting
-  6. Run: plot <node> vs <node> to obtain output waveform
+**Sky130 PDKS and Steps to Download Magic Tool**
+![pk35](https://github.com/poornima-chetty/pes_pd/assets/142583396/548c04fe-8064-466d-80e0-a0253f6c2a85)
+
+- Enter the command
+```
+ wget http://opencircuitdesign.com/open_pdks/archive/drc_tests.tgz
+```
 
-### Switching Threshold of a CMOS Inverter 
+- Move the file to desktop using
+```
+mv drc_tests.tgz Desktop/
+```
+![pk36](https://github.com/poornima-chetty/pes_pd/assets/142583396/00cb7255-07a4-44fc-a371-86236ce324e1)
 
-CMOS cells have three modes of operation:
+- Extract the file using
+```
+tar xfz drc_tests.tgz 
+```
+- Do ```ls``` to view all the files in it.
 
-  - Cutoff - No inversion
-  - Triode - Inversion but no pinchoff in channel
-  - Saturation - Inversion and pinchoff in channel
+To open the software we type
+```
+magic -d XR
+```
 
-The voltages at which the switch between the modes of operation happens is dependent on the threshold voltage of the device(s). Threshold voltage is a function of the W/L ratio of a device, therefore varying the W/L ratio will vary the output waveform of CMOS devices. 
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/8571a471-4937-4b89-8197-99c2648dfa66)
+- We click 'file' and open the 'met3.mag' file.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/cbec69ce-fedb-41cd-af31-0dd9750c1ed9)
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/b9551c50-a44b-472b-bf63-d4979c2f8caa)
+- If we select an area and type ```drc why``` in the tkcon wndow, it will show us the DRC error.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/53fdfab7-7d24-4638-9fb3-855589c89b83)
+- To add contact cuts to metal3, first select an area using left and right click. Then hovering over the m3contact we click middle mouse button.
+
+**Fixing DRC Errors**
+- There is a DRC error in the poly.mag file in 'poly.9'.
+- Open the sky130A.tech file in the editor and make the following changes
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/d786e946-95e0-42c8-a0bd-a83a57697e04)
 
-To enable efficient description of the varying waveforms a single parameter called switching threshold is used. Switching threshold is defined at the intersection of Vin = Vout. A perfectly symmetrical device will have a switching threshold such that Vin = Vout = VDD/2. 
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/4274217a-ba1b-499d-b81a-fa26b4262301)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/efafb2d3-520d-4405-b1ae-731b0308ac99)
+- Now open the tkcon window and type
+```
+load tech sky130A.tech
+drc check
+```
 
-### 16 Mask CMOS Process Steps
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/ebd7630c-128d-46ba-adb7-a30169ba7fe6)
+- As we can see the error is fixed.
 
-  - Substrate Selection : Selection of base layer on which other regions will be formed.
-  - Create an active region for transistors : SiO2 and Si3N2 deposited. Pockets created using photoresist and lithography.
-  - Nwell & Pwell formation : Pwell uses boron and nwell uses phosphorus. Drive in diffusion by placing it in a high temperature furnace.
-  - Creating Gate terminal : For desired threshold value NA (doping Concentration) and Cox to be set.
-  - Lightly Doped Drain (LDD) formation : LDD done to avoid hot electron effect and short channel effect.
-  - Source and Drain formation : Forming the source and drain.
-  - Contacts & local interconnect Creation : SiO2 removed using HF etch. Titanium deposited using sputtering.
-  - Higher Level metal layer formation : Upper layers of metals deposited.
+**DRC Error as Geometrical Construct**
+- We open the nwell.mag file.
 
-### Magic Layout View of Inverter Standard Cell
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/4c49e5c5-4738-449c-9df0-048d2034825d)
+- We type the above commands
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/40097614-0dfe-4479-b85c-4418e7b43787)
+- The following is displayed
 
-Refer to: https://github.com/nickson-jose/vsdstdcelldesign for cell files.
+**Find Missing or Incorrect Rules and Fix Them**
 
-For easier access to critical files within the lab I suggest doing the following:
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/338b998a-9a6b-4485-8d2b-095fbbcf3d83)
 
-  1. Sudo pluma /etc/environment (can open with preferred document viewer)
-  2. Add the following variables to the file:
-![D3_1](https://github.com/poornima-chetty/pes_pd/assets/142583396/53a2601a-f180-44f5-b14c-a8843aed3e0a)
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/cc00bc2f-31ed-45b3-96d8-a12b28697bd4)
+- As we can see this is an incorrect implementation and the above rule is violated.
 
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/d689590d-b9a7-43b2-b1da-72e95a9f4dcb)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/71d62451-245b-4010-8246-234727062c8b)
+- We make the following changes
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/08900ffa-8f91-4550-be8c-375b4cb42866)
+- Now we select the nwell.4 and type the following commands
+```
+tech load sky130A.tech
+drc check
+drc style drc(full)
+drc check
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/dbb58cd3-4845-4d28-a22b-0228b8260cf6)
+- As we can see the error still persists
+- We can fix it by the following method.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/4bc70446-9a20-47cd-95b9-d850e170887a)
+- Select the existing nwell.4 and make a copy of it by selecting it and clicking 'c'.
+- Now select a small area on the nwell.4 and add an 'nsubstratecontact' by hovering over it and clicking middle mouse button.
+
+# Day 4
+## Timing Modelling using Delay Tables
 
-Replace the file locations as specified in your user hierarchy
+**Convert Grid Info to Track Info**
+![pk41](https://github.com/poornima-chetty/pes_pd/assets/142583396/d787e6ae-de76-4b25-8d57-52f0f82b8066)
 
-To invoke Magic:
+- We must go to the following directory and type
+```
+less tracks.info
+```
+![pk42](https://github.com/poornima-chetty/pes_pd/assets/142583396/67407bb0-6f0a-4a84-8d81-ad578440951c)
 
-  ![](/images/20.png)
-![D3_3](https://github.com/poornima-chetty/pes_pd/assets/142583396/3a9211a9-5deb-46ee-b126-d62b8f426740)
+- The 'tracks.info' file is used during the routing stage.
+- Routes are the metal traces.
+- Since the PNR is an automated flow, we need to specify where all we want the routes to go.
 
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/15744b5a-0fc9-4ad5-b4ce-dfefd26e860d)
+- Now we converge the grid definition in the layout to track definition, by typing the following command
 
-### Magic Key Features:
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/dbc80960-e5cb-4b75-9f8d-d30c0e48febb)
+- The following is the result.
+- This shows that the routing of 'li1' layer can happen only along this grid
 
-  1. Color Palette - Defines layers and associated colors
-Continuous DRC
-  2. Device Inference - Automatic recognition of NMOS and PMOS devices
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/026c5733-e48a-4454-8bed-82a3dd6e1697)
+- Having the ports at the intersection of horizontal and vertical tracks ensure that the route can reach that port from the 'y' as well as 'x' direction.
 
-### Device Inference
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/a1022ba3-b42d-4fed-987f-d4823c0e5550)
+- The next requirement is that the width of the cell should be the odd multiple of xpitch which is '0.46' as seen in the 'tracks.info' file.
+- As we can see it encloses two full boxes and two halves of one box, totally making three boxes as indicated by the white rectangle.
 
-Select the specific layer/device by hovering over the object and pressing, s, iteratively, until you traverse the hierarchy to the specified object:
+**Convert Magic Layout to Standard Cell LEF**
+- In the tkcon window of the 'sky130_inv.mag' file we type
+```
+save sky130_vsdinv.mag
+```
+to make our own .mag file
 
-![D3_4](https://github.com/poornima-chetty/pes_pd/assets/142583396/28fe4d21-5271-4262-ae70-62d46d505d24)
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/c5cbd3be-e520-4548-b863-51c211664688)
+- To make the .lef file we type
+```
+lef write
+```
+to make our own lef file.
+
+- Type ```less sky130_vsdinv.lef```.
+![pk43](https://github.com/poornima-chetty/pes_pd/assets/142583396/03988d7e-2a0f-40cf-a668-9771cd70aad0)
 
-Run the what command in the tkcon window:
-![D3_5](https://github.com/poornima-chetty/pes_pd/assets/142583396/f2186247-fb09-4efb-baa8-e364d2088ace)
-
-
-### DRC Errors
-
-DRC errors in magic will be highlighted with white dotted lines:
-
-![D3_6](https://github.com/poornima-chetty/pes_pd/assets/142583396/97adb316-5f95-4fac-9089-db5cb338199f)
-
-DRC checks are continuous in Magic, therefore the designer may ensure the design is DRC free during creation instead of performing the iterative DRC checks when the cell layout is completed.
-
-To identify DRC errors select DRC find next error:
-![D3_7](https://github.com/poornima-chetty/pes_pd/assets/142583396/e0d22e82-51e5-4fc6-8d52-731a5abc2efb)
-
-
-The associated DRC error will be displayed in the tkcon window:
-![D3_8](https://github.com/poornima-chetty/pes_pd/assets/142583396/a0617936-59ec-40a7-a7b7-fb97d0ca344c)
-
-
-For more information on DRC errors plase refer to: https://skywater-pdk--136.org.readthedocs.build/en/136/
-For more information on how to fix these DRC errors using Magic please refer to: http://opencircuitdesign.com/magic/
-
-### PEX Extraction with Magic
-
-To extract the parasitic spice file for the associated layout one needs to create an extraction file:
-![D3_9](https://github.com/poornima-chetty/pes_pd/assets/142583396/b16ad45d-f5a3-4318-9451-78a5ca03ce44)
-
-
-After generating the extracted file we need to output the .ext file to a spice file:
-![D3_10](https://github.com/poornima-chetty/pes_pd/assets/142583396/d4359fb6-9f8f-4566-9955-a33dab961991)
-
-![D3_11](https://github.com/poornima-chetty/pes_pd/assets/142583396/fc845fe5-9510-4a4a-8a50-16538467b871)
-
-
-### Spice Wrapper for Simulation
-
-![D3_12](https://github.com/poornima-chetty/pes_pd/assets/142583396/69c5b1a7-c04a-475c-a128-4a75eb536eb7)
-
-To run the simulation with ngspice, invoke the ngspice tool with the spice file as input:
-
-![](/images/31.png)
-
-The plot can be viewed by plotting the output vs time while sweeping the input:
-![D3_13](https://github.com/poornima-chetty/pes_pd/assets/142583396/95419a6a-8d3b-4707-a4af-30934fabbde8)
-
-
-<!-- Day 4 Layout Timing Analysis and CTS -->
-##  Day 4 Layout Timing Analysis and CTS
-
-Place and routing (PnR) is performed using an abstract view of the GDS files generated by Magic. The abstract information will include metal and pin information. The PnR tool will use the abstract view information, formally defined as LEF information, to perform interconnect routing in conjunction to routing guides generated from the PnR flow.
-
-### An Introduction to LEF Files
-
-  - Technology LEF - Contains layer information, via information, and restricted DRC rules
-  - Cell LEF - Abstract information of standard cells
-
-![](/images/33.png)
-
-Tracks are used during the routing stage, routes can go over the tracks, or metal traces can go over the tracks. What the file is saying is that for the li1 layer the x or horizontal track is at an offset of 0.23 and a pitch of 0.46. The offset is the distance from the origin to the routing track in either the x or y direction. It is half the pitch so that means the tracks are centered around the origin. 
-
-### Standard Cell Pin Placement
-
-On-track standard cell pin placement is essential for DRC free PnR flow. Pins must align with the li1 and met1 preferred routing directions. During standard cell creation this concept must be accounted for. To ensure a cell is aligned with routing grids in Magic we can display a grid on top of the gds file.
-
-To display the grid in magic:
-
-![](/images/34.png)
-
-Viewing the grid we can ensure our pin placement is optimized for PnR flow:
-
-![](/images/35.png)
-
-### LEF Generation in Magic
-
-Magic allows users to generate cell LEF information directly from the Magic terminal. To generate the cell LEF file from Magic perform:
-
-![](/images/36.png)
-
-Generated cell LEF file:
-
-![](/images/37.png)
-
-### Including Custom Cells in OpenLANE
-
-In order to include the new cells in OpenLANE we need to do some initial configuration:
-  1. Fully characterize new cell with GUNA for specified corners
-  2. Include cell level liberty file in top level liberty file
-  3. Reconfigure synthesis switches in the config.tcl file:
-
-  ![](/images/38.png)
-
-Note: This step will also include any extra LEF files generated for the custom standard cell(s)
-Overwrite previous run to include new configuration switches:
-
-  4. Overwrite previous run to include new configuration switches:
-  
-  ![](/images/39.png)
-
-  5. Add additional statements to include extra cell LEFs:
-  
-  ![](/images/40.png)
-
-  5. Check synthesis logs to ensure cell has been integrated correctly
-
-### Fixing Slack Violations
-
-VLSI engineers will obtain system specifications in the architecture design phase. These specifications will determine a required frequency of operation. To analyze a circuit's timing performance designers will use static timing analysis tools (STA). When referring to pre clock tree synthesis STA analysis we are mainly concerned with setup timing in regards to a launch clock. STA will report problems such as worst negative slack (WNS) and total negative slack (TNS). These refer to the worst path delay and total path delay in regards to our setup timing restraint. Fixing slack violations can be debugged through performing STA analysis with OpenSTA, which is integrated in the OpenLANE tool. To describe these constraints to tools such as In order to ensure correct operation of these tools two steps must be taken:
-
-  1. Design configuration files (.conf) - Tool configuration files for the specified design
-  2. Design Synopsys design constraint (.sdc) files - Industry standard constraints file 
-
-For the design to be complete, the worst negative slack needs to be above or equal to 0. If the slack is outside of this range we can do one of multiple things:
-
-  1. Review our synthesis strategy in OpenLANE
-  2. Enable cell buffering
-  3. Perform manual cell replacement on our WNS path with the OpenSTA tool
-  4. Optimize the fanout value with OpenLANE tool
-
-To invoke OpenSTA with the configuration file:
-
-![](/images/41.png)
-
-### Cell Fanout Example:
-
-![](/images/42.png)
-
-The delay of this cell is large due to a high load capacitance due to high fanout. To fix this problem we can re-run synthesis within OpenLANE after reconfiguring the maximum fanout load value.
-
-### Cell Replacement Example:
-
-![](/images/43.png)
-
-To determine what loads our net is driving in OpenSTA we can report net connecitons:
-
-![](/images/44.png)
-
-To increase the drive strength of our buffer:
-
-![](/images/45.png)
-
-After performing this optimization we can use the write_verilog command of OpenSTA to output the improved netlist for use in the OpenLANE flow:
-
-![](/images/46.png)
-
-### Clock Tree Synthesis
-
-After running floorplan and standard cell placement in OpenLANE we are ready to insert our clock tree for sequential elements in our design. Two of the main concerns with generation of the clock tree are:
-  
-  1. Clock skew - Difference in arrival times of the clock for sequential elements across the design
-  2. Delta delay - Skew introduced through capacitive coupling of the clock tree nets
-
-To run clock tree synthesis (CTS) in OpenLANE:
-
-![](/images/47.png)
-
-Note: To ensure timing constraints CTS will add buffers throughout the clock tree which will modify our netlist
-
-### Viewing Post-CTS Netlist
-
-OpenLANE will generate a new .def file containing information of our design after CTS is performed. To view this netlist we need to invoke the .def file with the Magic tool:
-
-![](/images/48.png)
-
-### Post-CTS STA Analysis
-
-OpenLANE has the OpenROAD application integrated into its flow. The OpenROAD application has OpenSTA integrated into its flow. Therefore, we can perform STA analysis from within OpenLANE by invoking OpenROAD.
-
-To invoke OpenROAD from OpenLANE:
-
-![](/images/49.png)
-
-In OpenROAD the timing analysis is done by creating a .db database file. This database file is created from the post-cts LEF and DEF files. To generate the .db files within OpenROAD:
-
-![](/images/50.png)
-
-Note: Whenever the DEF file changes we need to recreate this .db file
-
-After .db generation users can perform tool configuration followed by reporting the propagated clock timing analysis:
-
-![](/images/51.png)
-
-<!-- Day 5 Final Steps in RTL to GDSII -->
-##  Day 5 Final Steps in RTL to GDSII
-
-After generating our clock tree network and verifying post routing STA checks we are ready to generate the power distribution network in OpenLANE:
-
-![](/images/52.png)
-
-### Power Distribution Network Generation
-
-To generate the PDN in OpenLANE:
-
-![](/images/53.png)
-
-The PDN feature within OpenLANE will create:
-  1. Power ring global to the entire core
-  2. Power halo local to any preplaced cells
-  3. Power straps to bring power into the center of the chip
-  4. Power rails for the standard cells
-  
-  ![](/images/54.png)
-
-Note: The pitch of the metal 1 power rails defines the height of the standard cells
-
-### Global and Detailed Routing
-
-OpenLANE uses TritonRoute as the routing engine for physical implementations of designs. Routing consists of two stages:
-
-  1. Global Routing - Routing guides are generated for interconnects on our netlist defining what layers, and where on the chip each of the nets will be reputed
-  2. Detailed Routing - Metal traces are iteratively laid across the routing guides to physically implement the routing guides
-
-### To run routing in OpenLANE:
-
-![](/images/55.png)
-
-If DRC errors persist after routing the user has two options:
-  1. Re-run routing with higher QoR settings
-  2. Manually fix DRC errors specific in tritonRoute.drc file
-
-### SPEF Extraction
-
-After routing has been completed interconnect parasitics can be extracted to perform sign-off post-route STA analysis. The parasitics are extracted into a SPEF file. The SPEF extractor is not included within OpenLANE as of now. 
+- The .lef file is as follows
+
+**Steps to Include New Cell in Synthesis**
+![pk44](https://github.com/poornima-chetty/pes_pd/assets/142583396/eed1d102-70b8-4a8a-898b-0e044c511d4b)
+
+- We copy the .mag file that we created to the 'src' folder of picorv32a folder.
+![pk45](https://github.com/poornima-chetty/pes_pd/assets/142583396/928874be-22fc-4d39-85c5-8528fca7c6e7)
+
+- We then perform this copy command.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/acb2c280-ba86-4f84-947e-450fc242eee8)
+- Next we modify the 'config.tcl' file in the picorv32a folder as follows.
+- Open the OpenLANE interactive window and retrieve the 0.9 package.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/2d3fb8cd-43e6-46c2-b2de-69a338320fe4)
+- Type the following
+```
+prep -design picorv32a -tag 16-09_19-58 -overwrite
+set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+add_lefs -src $lefs 
+```
+- Next we type ```run_synthesis```.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/e3fdfe4f-0139-4bd1-8617-b9aa6c54d0e2)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/527db989-1cd9-403a-8b02-3028400befc0)
+- The following results are displayed.
+
+- To run floorplan and placement we type
+```
+init_floorplan
+run_placement
+```
+- Now to view the design we type the command
+```
+magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/magic/sky130A.tech lef read ../../tmp/merged.lef def read picorv32a.placement.def &
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/84fad4e0-bda4-4026-a9a4-4dc9bc9edec6)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/7fd1b736-d6dd-4a98-8567-1ee6d0cc5813)
+- The following is displayed.
+- Zooming into the design using 'z' we can see the sky130_vsdinv than we defined.
+- We have plugged in our custon cell in the OpenLANE flow.
+
+## Timing Analysis with Ideal Clocks using OpenSTA
+
+**Configure OpenSTA for Post-Synth Timing Analysis**
+- We must create two files
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/c9867e29-810f-4aca-87cb-c71032f823e4)
+- The first one must be in the openlane directory
+- This file is known as the 'pre_sta.conf' file.
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/9e849dac-a4ff-4420-9a48-bf759f6c82e4)
+
+- The second is the my_base.sdc file.
+- This should be in the 'src/sky130' directory under the picorv32a directory.
+
+- To run the timing analysis we type
+```
+sta pre_sta.conf
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/130dfd6a-d980-4cd8-99e0-4ca26d7cd32b)
+- Following result is displayed
+- There is a slack violation
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/a033e771-31e5-4b36-b783-d37e0fc52001)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/48528ec3-a353-4809-8d67-4238ad7880fc)
+- Settinf MAX_FANOUT value to 4 reduces the slack violation.
+
+## Clock Tree Synthesis TritonCTS and Signal Integrity
+**Run CTS**
+- To run CTS we need to type the command
+```
+run_cts
+```
+
+- New .v is created
+
+**Timing Analysis with Real CLocks using OpenSTA**
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/9946a62e-f301-4eab-afe7-f3127d4e56b6)
+- First we type the command ```openroad```.
+- Then we read the .lef file using the command
+```
+read_lef /openLANE_flow/designs/picorv32a/runs/16-09_19-58/tmp/merged.lef
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/168b1183-65aa-4e51-ab9f-8c6e227e188c)
+- Then we read the .def file.
+```
+read_def /openLANE_flow/designs/picorv32a/runs/16-09_19-58/results/cts/picorv32a.cts.def
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/0e3199ee-c1dc-43fb-8097-0c688b685c48)
+- We then do
+```
+write_db pico_cts.db
+read_db pico_cts.db
+read_verilog /openLANE_flow/designs/picorv32a/runs/16-09_19-58/results/synthesis/picorv32a.synthesis_cts.v
+read_liberty -max $::env(LIB_SLOWEST)
+read_liberty -max $::env(LIB_FASTEST)
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/4b35830f-9822-48c7-ab41-5bcfb1eea4f6)
+- We read the .src file.
+```
+read_sdc /openLANE_flow/designs/picorv32a/src/sky130/my_base.sdc
+```
+- We set the clock
+```
+set_propagated_clock [all_clocks]
+```
+- Checking the report
+```
+report_checks -path_delay min_max -format full_clock_expanded -digits 4
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/f637e66a-db20-4cb6-8b84-75c11267c0eb)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/184e7412-dc84-453c-b2f0-76b40e3588f4)
+- Above results are displayed
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/7fd17b40-dfe1-4b1f-b597-fa5b5c911f74)
+- We perform it again for a more accurate result
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/a563b159-c6bb-44ec-a44a-e406c16f5ed3)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/19435f73-e4c7-4663-9c21-0780cdd3f2a6)
+- Above results are displayed
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/0415b653-7c0b-478d-91c3-e70d0e94d654)
+```
+report_clock_skew -hold
+report clock_skew -setup
+```
+
+# Day 5
+## Power Distribution Network and Routing
+
+**Build Power Distribution Network**
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/02713233-6b98-4280-b70b-c54aea1d9ddb)
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/965b7342-ccfa-41ee-9798-4180265a6119)
+- To do this first we type
+```
+gen_pdn
+```
+
+![image](https://github.com/AniruddhaN2203/pes_pd/assets/142299140/8467354c-875a-44e9-8ef1-f5be38bd0cc4)
+- We see that there is a change in the DEF.
+- To run the rounting we type ```run_routing```.
+- To check for DRC errors we need to check the 'tritonRoute.drc' folder
+- To extract the parasitics we need to use an extractor engine.
+- We use the SPEF Extraction.
+
+**SPEF Extraction**
+- To use this engine we need to go to
+```
+cd Desktop/work/tools/SPEF_Extractor
+```
+- Next we need to use this command
+```
+python3 /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/16-09_19-58/tmp/merged.lef /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/16-09_19-58/results/routing/picorv32a.def
+```
+- SPEF file is created in ```/home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/16-09_19-58/results/routing/```
 
