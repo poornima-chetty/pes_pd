@@ -777,6 +777,7 @@ drc check
 ## Timing Modelling using Delay Tables
 
 **Convert Grid Info to Track Info**
+
 ![pk41](https://github.com/poornima-chetty/pes_pd/assets/142583396/d787e6ae-de76-4b25-8d57-52f0f82b8066)
 
 - We must go to the following directory and type
@@ -810,7 +811,9 @@ save sky130_vsdinv.mag
 ```
 to make our own .mag file
 
+
 ![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/1161dc6b-1878-4e22-b228-30621b14ab79)
+
 - To make the .lef file we type
 ```
 lef write
@@ -859,8 +862,8 @@ magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs
 ```
 
 ![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/26f57bdf-8d61-4e4d-be98-be5cd9ab9fdc)
+![268714027-feaec9b1-f026-48a6-a858-9b1a2882287e (1)](https://github.com/poornima-chetty/pes_pd/assets/142583396/cc1e674d-6c49-4344-9a26-fc2024ed918f)
 
-![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/26c25e4b-18ba-4cac-8993-2c0f331ef224)
 - The following is displayed.
 - Zooming into the design using 'z' we can see the sky130_vsdinv than we defined.
 - We have plugged in our custon cell in the OpenLANE flow.
@@ -869,12 +872,12 @@ magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs
 
 **Configure OpenSTA for Post-Synth Timing Analysis**
 - We must create two files
+![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/5944818c-56fe-40a8-b7fb-e08a615dbce6)
 
-![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/beffb233-293e-44c6-a9f0-d463ad537cc9)
 - The first one must be in the openlane directory
 - This file is known as the 'pre_sta.conf' file.
+![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/41a23417-83b7-4806-97f7-8d8059557f12)
 
-![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/a71ce26a-58ba-42b0-bb91-25f628b34550)
 
 - The second is the my_base.sdc file.
 - This should be in the 'src/sky130' directory under the picorv32a directory.
@@ -884,11 +887,9 @@ magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs
 sta pre_sta.conf
 ```
 
-![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/5944818c-56fe-40a8-b7fb-e08a615dbce6)
 - Following result is displayed
 - There is a slack violation
 
-![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/41a23417-83b7-4806-97f7-8d8059557f12)
 
 ![image](https://github.com/poornima-chetty/pes_pd/assets/142583396/29077af4-9aea-4a30-bfe7-a5fae6406389)
 - Settinf MAX_FANOUT value to 4 reduces the slack violation.
